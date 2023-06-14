@@ -28,24 +28,15 @@ export class SiweClient extends SiweImpl {
 
   async _extractCookies(headers?: Headers): Promise<void> {
     const cookieRecord: Record<string, string> = {}
-    // previously
 
-    let headerSetCookies: Array<string> = []
-
-    try {
-      // returns headers.raw is not a function while running the sdk on a repl
-      headerSetCookies = (headers as any)?.raw()['set-cookie'] as Array<string>
-    } catch {
-      //  returns headers.get is not a function while running test cases
-      // according to the type definitions, .get happens to be the correct method to extract the cookie headers
-      headerSetCookies = headers
-        ?.get('set-cookie')
-        ?.split(';')
-        ?.map((headerValue) => String(headerValue).trim()) as Array<string>
-    }
+    const headerSetCookies = headers?.get('set-cookie')
 
     if (headerSetCookies) {
-      headerSetCookies.forEach(async (cookieString: string) => {
+      const cookies = headerSetCookies
+        .split(';')
+        .map((headerValue) => headerValue.trim())
+
+      cookies.forEach(async (cookieString: string) => {
         const setCookie = Cookie.parse(cookieString)
         if (setCookie) {
           cookieRecord[setCookie.key] = setCookie.value
