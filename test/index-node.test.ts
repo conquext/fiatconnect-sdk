@@ -1,7 +1,7 @@
-import { FiatConnectClient, SiweClient } from '../src/index-node'
 import { Network } from '@fiatconnect/fiatconnect-types'
-import * as siwe from 'siwe'
 import 'jest-fetch-mock'
+import * as siwe from 'siwe'
+import { FiatConnectClient, SiweClient } from '../src/index-node'
 import { mockClockResponse } from './mocks'
 
 // work around from
@@ -142,9 +142,11 @@ describe('FiatConnect SDK node', () => {
     describe('_extractCookies', () => {
       it('parses header for cookies', async () => {
         const mockHeader = {
-          raw: () => ({
-            'set-cookie': ['session=session-val', 'session2=session-val2'],
-          }),
+          get: (field: string) => {
+            return { [field]: 'session=session-val;session2=session-val2' }[
+              field
+            ]
+          },
         } as any as Headers
 
         await client._extractCookies(mockHeader)
